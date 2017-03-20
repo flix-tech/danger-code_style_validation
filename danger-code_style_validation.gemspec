@@ -7,10 +7,10 @@ Gem::Specification.new do |spec|
   spec.name          = 'danger-code_style_validation'
   spec.version       = CodeStyleValidation::VERSION
   spec.authors       = ['Ersen Tekin']
-  spec.email         = ['ersen.tekin@gmail.com']
+  spec.email         = ['team.ios@flixbus.com']
   spec.description   = %q{A short description of danger-code_style_validation.}
   spec.summary       = %q{A longer description of danger-code_style_validation.}
-  spec.homepage      = 'https://github.com/Ersen Tekin/danger-code_style_validation'
+  spec.homepage      = 'https://github.com/flix-tech/danger-code_style_validation'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files`.split($/)
