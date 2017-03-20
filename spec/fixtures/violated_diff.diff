@@ -1,0 +1,19 @@
+--- a/spec/fixtures/BadViewController.m
++++ b/spec/fixtures/BadViewController.m
+@@ -1,10 +1,9 @@
+-@interface ViewController ()
+-@end
++@interface ViewController (  ) @end
+ 
+ @implementation ViewController
+-- (void)viewDidLoad {
+-  [super viewDidLoad];
+-  NSLog(@"perfect change!");
++-(void ) viewDidLoad {
++    [super viewDidLoad];
++    NSLog(  @"perfect change!")   ;
+ }
+ 
+-@end
+\ No newline at end of file
++@end
