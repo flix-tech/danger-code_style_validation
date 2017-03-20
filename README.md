@@ -4,6 +4,8 @@ This plugin looks for code style violations for added lines and suggests patches
 
 It uses 'clang-format' and only checks `.h`, `.m` and `.mm` files
 
+![Example](/doc/images/example.png)
+
 ## Installation
 
 Add the following string to your Gemfile:
