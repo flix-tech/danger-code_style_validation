@@ -7,18 +7,22 @@ module Danger
   #
   # @example Ensure that added lines does not violate code style
   #
-  #          code-style-validation.check
+  #          code_style_validation.check
   #
   # @example Ensure that changes don't violate code style, ignoring Pods directory
   #
   #          code_style_validation.check ignore_file_patterns: [/^Pods\//]
   #
-  # @see  Ersen Tekin/danger-code_style_validation
-  # @tags code, style, violation, validation
+  # @see danger/danger
+  # @tags code style, validation
   #
   class DangerCodeStyleValidation < Plugin
     VIOLATION_ERROR_MESSAGE = 'Code style violations detected.'.freeze
     
+    # Validates the code style of changed & added files using clang-format.
+    # Generates Markdown message with respective patches.
+    #
+    # @return [void]
     def check(config = {})
       ignore_file_patterns = [*config[:ignore_file_patterns]]
 
