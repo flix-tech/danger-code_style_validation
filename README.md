@@ -1,5 +1,7 @@
 # danger-code_style_validation
 
+[![Build Status](https://travis-ci.org/flix-tech/danger-code_style_validation.svg?branch=master)](https://travis-ci.org/flix-tech/danger-code_style_validation)
+
 This plugin looks for code style violations for added lines and suggests patches.
 
 It uses 'clang-format' and only checks `.h`, `.m` and `.mm` files

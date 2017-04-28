@@ -1,12 +1,29 @@
+os:
+  - linux
+  - osx
+dist: trusty
+
 language: ruby
-cache:
-  directories:
-    - bundle
+cache: bundler
 
 rvm:
   - 2.0
   - 2.1.3
   - 2.3.1
+  - 2.4.0
+
+branches:
+  only:
+    - master
+
+addons:
+  apt:
+    packages: [
+      clang-format-3.6
+    ]
+
+before_install:
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install clang-format@3.8; fi
 
 script:
-    - bundle exec rake spec
+  - bundle exec rake spec

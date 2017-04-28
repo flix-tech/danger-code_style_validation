@@ -44,13 +44,11 @@ end
 # running a PR on TravisCI
 def testing_env
   {
-    'DANGER_GITLAB_API_TOKEN' => '3PBA55xbCNQV6xdCCjwT',
-    'JENKINS_URL' => 'http://mobile-jenkins.local/',
-    'GIT_URL' => 'git@gitlab.mfb.io:iOS/danger-code_style_validation.git',
-    'DANGER_GITLAB_HOST' => 'gitlab.mfb.io',
-    'DANGER_GITLAB_API_BASE_URL' => 'https://gitlab.mfb.io/api/v3',
-    'GIT_BRANCH' => 'ersen/danger-code-style-validation',
-    'gitlabMergeRequestId' => '15546'
+    'HAS_JOSH_K_SEAL_OF_APPROVAL' => 'true',
+    'TRAVIS_PULL_REQUEST' => '800',
+    'TRAVIS_REPO_SLUG' => 'artsy/eigen',
+    'TRAVIS_COMMIT_RANGE' => '759adcbd0d8f...13c4dc8bb61d',
+    'DANGER_GITHUB_API_TOKEN' => '123sbdq54erfsd3422gdfio'
   }
 end
 
