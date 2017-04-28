@@ -18,7 +18,7 @@ module Danger
         @my_plugin.gitlab.stub(:mr_diff).and_return diff
         @my_plugin.check
 
-        expect(@dangerfile.status_report[:errors]).to eq([VIOLATION_ERROR_MESSAGE])
+        expect(@dangerfile.status_report[:errors]).to eq([DangerCodeStyleValidation::VIOLATION_ERROR_MESSAGE])
       end
 
       it 'Does not report error when code not violated' do
