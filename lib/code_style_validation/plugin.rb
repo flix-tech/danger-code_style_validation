@@ -16,11 +16,9 @@ module Danger
   # @see  Ersen Tekin/danger-code_style_validation
   # @tags code, style, violation, validation
   #
-
-  VIOLATION_ERROR_MESSAGE = 'Code style violations detected.'.freeze
-
-  # Code style validation check plugin
   class DangerCodeStyleValidation < Plugin
+    VIOLATION_ERROR_MESSAGE = 'Code style violations detected.'.freeze
+    
     def check(config = {})
       ignore_file_patterns = [*config[:ignore_file_patterns]]
 
