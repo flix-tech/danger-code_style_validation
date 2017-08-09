@@ -3,7 +3,8 @@ module Danger
   # added lines on the current MR / PR,
   # and offers inline patches.
   #
-  # It uses 'clang-format' and only checks ".h", ".m" and ".mm" files
+  # It uses 'clang-format' and only checks ".h", ".m", ".mm", ".hpp", ".hh",
+  # ".cxx", ".cc" and ".cpp" files
   #
   # @example Ensure that added lines does not violate code style
   #
@@ -43,7 +44,7 @@ module Danger
 
       return if message.empty?
       fail VIOLATION_ERROR_MESSAGE
-      markdown '### Code Style Check (`.h`, `.m` and `.mm`)'
+      markdown '### Code Style Check'
       markdown '---'
       markdown message
     end
@@ -69,7 +70,7 @@ module Danger
 
         file_name = filename_line.split('+++ b/').last.chomp
 
-        unless file_name.end_with?('.m', '.h', '.mm')
+        unless file_name.end_with?('.m', '.h', '.mm', '.hpp', '.hh', '.cxx', '.cc', '.cpp')
           next
         end
 
@@ -130,7 +131,14 @@ module Danger
     def resolve_changes(changes)
       # Parse all patches from diff string
 
-      markup_message = ''
+      markup_message = 'Code style violations detected in the following files:' + "\n"
+      changes.each do |file_name, changed_lines|
+	markup_message += '* `' + file_name + "`\n\n"
+      end
+
+      markup_message += 'Execute one of the following actions and commit again:' + "\n"
+      markup_message += '1. Run `clang-format` on the offending files' + "\n"
+      markup_message += '2. Apply the suggested patches with `git apply patch`.' + "\n"
 
       # patches.each do |patch|
       changes.each do |file_name, changed_lines|
