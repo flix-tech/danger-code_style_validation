@@ -40,7 +40,19 @@ module Danger
       end
 
       changes = get_changes(diff, ignore_file_patterns)
-      message = resolve_changes(changes)
+      offending_files, patches = resolve_changes(changes)
+
+      message = ''
+      unless offending_files.empty?
+        message = 'Code style violations detected in the following files:' + "\n"  
+	offending_files.each do |file_name|
+	  message += '* `' + file_name + "`\n\n"
+        end	
+        message += 'Execute one of the following actions and commit again:' + "\n"
+        message += '1. Run `clang-format` on the offending files' + "\n"
+        message += '2. Apply the suggested patches with `git apply patch`.' + "\n\n"
+        message += patches.join(' ')
+      end 
 
       return if message.empty?
       fail VIOLATION_ERROR_MESSAGE
@@ -122,24 +134,17 @@ module Danger
       patches
     end
 
-    def generate_markdown(title, content)
-      markup_message = '#### ' + title + "\n"
-      markup_message += "```diff \n" + content + "\n``` \n"
-      markup_message
+    def generate_patch(title, content)
+      markup_patch = '#### ' + title + "\n"
+      markup_patch += "```diff \n" + content + "\n``` \n"
+      markup_patch
     end
 
     def resolve_changes(changes)
       # Parse all patches from diff string
 
-      markup_message = 'Code style violations detected in the following files:' + "\n"
-      changes.each do |file_name, changed_lines|
-	markup_message += '* `' + file_name + "`\n\n"
-      end
-
-      markup_message += 'Execute one of the following actions and commit again:' + "\n"
-      markup_message += '1. Run `clang-format` on the offending files' + "\n"
-      markup_message += '2. Apply the suggested patches with `git apply patch`.' + "\n"
-
+      offending_files = []
+      patches = []
       # patches.each do |patch|
       changes.each do |file_name, changed_lines|
         changed_lines_command_array = []
@@ -165,14 +170,16 @@ module Danger
         formatted_temp_file.close
         formatted_temp_file.unlink
 
-        # generate Markup message of patch suggestions
-        # to prevent code-style violations
+	# generate arrays with:
+	# 1. Name of offending files
+	# 2. Suggested patches, in Markdown format
         unless diff.empty?
-          markup_message += generate_markdown(file_name, diff)
+	  offending_files = [file_name]
+	  patches = [generate_patch(file_name, diff)]
         end
       end
 
-      markup_message
+      return offending_files, patches
     end
   end
 end
