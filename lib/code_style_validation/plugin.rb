@@ -174,8 +174,8 @@ module Danger
 	# 1. Name of offending files
 	# 2. Suggested patches, in Markdown format
         unless diff.empty?
-	  offending_files = [file_name]
-	  patches = [generate_patch(file_name, diff)]
+	  offending_files.push(file_name)
+	  patches.push(generate_patch(file_name, diff))
         end
       end
 
