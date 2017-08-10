@@ -16,7 +16,7 @@ module Danger
         diff = File.read('spec/fixtures/violated_diff.diff')
 
         @my_plugin.github.stub(:pr_diff).and_return diff
-        @my_plugin.check
+        @my_plugin.check file_extensions: ['.h', '.m', '.mm', '.C', '.cpp']
 
         expect(@dangerfile.status_report[:errors]).to eq([DangerCodeStyleValidation::VIOLATION_ERROR_MESSAGE])
       end

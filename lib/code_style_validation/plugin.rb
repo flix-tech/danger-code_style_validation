@@ -1,16 +1,18 @@
 module Danger
-  # This plugin looks for code style violations for
-  # added lines on the current MR / PR,
-  # and offers inline patches.
-  #
-  # It uses 'clang-format' and only checks ".h", ".m", ".mm", ".hpp", ".hh",
-  # ".cxx", ".cc" and ".cpp" files
-  #
-  # @example Ensure that added lines does not violate code style
+  # This plugin uses 'clang-format' to look for code style violations in added
+  # lines on the current MR / PR, and offers inline patches.
+  # By default only Objective-C files, with extensions ".h", ".m", ".mm" and
+  # ".C", are checked.
+  # 
+  # @example Ensure that changes do not violate code style in Objective-C files
   #
   #          code_style_validation.check
   #
-  # @example Ensure that changes don't violate code style, ignoring Pods directory
+  # @example Ensure that changes do not violate code style in files with given extensions
+  #
+  #          code_style_validation.check file_extensions: ['.hpp', '.cpp']
+  #
+  # @example Ensure that changes do not violate code style, ignoring Pods directory
   #
   #          code_style_validation.check ignore_file_patterns: [/^Pods\//]
   #
@@ -25,6 +27,9 @@ module Danger
     #
     # @return [void]
     def check(config = {})
+      defaults = {file_extensions: ['.h', '.m', '.mm', '.C'], ignore_file_patterns: []}
+      config = defaults.merge(config)
+      file_extensions = [*config[:file_extensions]]
       ignore_file_patterns = [*config[:ignore_file_patterns]]
 
       diff = ''
@@ -39,7 +44,7 @@ module Danger
         raise 'Unknown SCM Provider'
       end
 
-      changes = get_changes(diff, ignore_file_patterns)
+      changes = get_changes(diff, file_extensions, ignore_file_patterns)
       offending_files, patches = resolve_changes(changes)
 
       message = ''
@@ -63,7 +68,7 @@ module Danger
 
     private
 
-    def get_changes(diff_str, ignore_file_patterns)
+    def get_changes(diff_str, file_extensions, ignore_file_patterns)
       changes = {}
       line_cursor = 0
 
@@ -82,7 +87,7 @@ module Danger
 
         file_name = filename_line.split('+++ b/').last.chomp
 
-        unless file_name.end_with?('.m', '.h', '.mm', '.hpp', '.hh', '.cxx', '.cc', '.cpp')
+        unless file_name.end_with?(*file_extensions)
           next
         end
 
