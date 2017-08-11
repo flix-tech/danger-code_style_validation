@@ -21,6 +21,15 @@ module Danger
         expect(@dangerfile.status_report[:errors]).to eq([DangerCodeStyleValidation::VIOLATION_ERROR_MESSAGE])
       end
 
+      it 'Does not report error when extension is excluded' do
+        diff = File.read('spec/fixtures/violated_diff.diff')
+
+        @my_plugin.github.stub(:pr_diff).and_return diff
+        @my_plugin.check file_extensions: ['.h', '.c']
+
+        expect(@dangerfile.status_report[:errors]).to eq([])
+      end
+
       it 'Does not report error when code not violated' do
         diff = File.read('spec/fixtures/innocent_diff.diff')
 
@@ -52,7 +61,8 @@ module Danger
         diff = File.read('spec/fixtures/violated_diff.diff')
 
         @my_plugin.github.stub(:pr_diff).and_return diff
-        @my_plugin.check ignore_file_patterns: [%r{^spec/}]
+        @my_plugin.check file_extensions: ['.h', '.m'],
+                         ignore_file_patterns: [%r{^spec/}]
 
         expect(@dangerfile.status_report[:errors]).to eq([])
       end
@@ -64,6 +74,15 @@ module Danger
         @my_plugin.check ignore_file_patterns: %r{^spec/}
 
         expect(@dangerfile.status_report[:errors]).to eq([])
+      end
+
+      it 'Allows single file extension instead of array' do
+        diff = File.read('spec/fixtures/violated_diff.diff')
+
+        @my_plugin.github.stub(:pr_diff).and_return diff
+        @my_plugin.check file_extensions: '.m'
+
+        expect(@dangerfile.status_report[:errors]).to eq([DangerCodeStyleValidation::VIOLATION_ERROR_MESSAGE])
       end
     end
   end
