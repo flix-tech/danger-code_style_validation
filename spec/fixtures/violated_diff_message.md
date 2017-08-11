@@ -11,18 +11,18 @@ Execute one of the following actions and commit again:
 ```diff 
 --- spec/fixtures/BadViewController.m
 +++ spec/fixtures/BadViewController.m
-@@ -1,9 +1,11 @@
+@@ -1,9 +1,10 @@
 -@interface ViewController (  ) @end
 +@interface ViewController ()
 +@end
  
  @implementation ViewController
 --(void ) viewDidLoad {
-+- (void)viewDidLoad
-+{
-     [super viewDidLoad];
+-    [super viewDidLoad];
 -    NSLog(  @"perfect change!")   ;
-+    NSLog(@"perfect change!");
++- (void)viewDidLoad {
++  [super viewDidLoad];
++  NSLog(@"perfect change!");
  }
  
  @end
