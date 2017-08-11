@@ -14,11 +14,13 @@ module Danger
 
       it 'Reports code style violation as error' do
         diff = File.read('spec/fixtures/violated_diff.diff')
+        expected_message = File.read('spec/fixtures/violated_diff_message.md')
 
         @my_plugin.github.stub(:pr_diff).and_return diff
         @my_plugin.check file_extensions: ['.h', '.m', '.mm', '.C', '.cpp']
 
         expect(@dangerfile.status_report[:errors]).to eq([DangerCodeStyleValidation::VIOLATION_ERROR_MESSAGE])
+        expect(@dangerfile.status_report[:markdowns].map(&:message).join("\n")).to eq(expected_message)
       end
 
       it 'Does not report error when extension is excluded' do
