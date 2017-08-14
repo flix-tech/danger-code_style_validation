@@ -1,9 +1,9 @@
 module Danger
   # This plugin uses 'clang-format' to look for code style violations in added
   # lines on the current MR / PR, and offers inline patches.
-  # By default only Objective-C files, with extensions ".h", ".m", ".mm" and
-  # ".C", are checked.
-  # 
+  # By default only Objective-C files, with extensions ".h", ".m", and ".mm"
+  # are checked.
+  #
   # @example Ensure that changes do not violate code style in Objective-C files
   #
   #          code_style_validation.check
@@ -21,13 +21,13 @@ module Danger
   #
   class DangerCodeStyleValidation < Plugin
     VIOLATION_ERROR_MESSAGE = 'Code style violations detected.'.freeze
-    
+
     # Validates the code style of changed & added files using clang-format.
     # Generates Markdown message with respective patches.
     #
     # @return [void]
     def check(config = {})
-      defaults = {file_extensions: ['.h', '.m', '.mm', '.C'], ignore_file_patterns: []}
+      defaults = {file_extensions: ['.h', '.m', '.mm'], ignore_file_patterns: []}
       config = defaults.merge(config)
       file_extensions = [*config[:file_extensions]]
       ignore_file_patterns = [*config[:ignore_file_patterns]]
@@ -49,15 +49,15 @@ module Danger
 
       message = ''
       unless offending_files.empty?
-        message = 'Code style violations detected in the following files:' + "\n"  
-	offending_files.each do |file_name|
-	  message += '* `' + file_name + "`\n\n"
-        end	
+        message = 'Code style violations detected in the following files:' + "\n"
+        offending_files.each do |file_name|
+          message += '* `' + file_name + "`\n\n"
+        end
         message += 'Execute one of the following actions and commit again:' + "\n"
         message += '1. Run `clang-format` on the offending files' + "\n"
         message += '2. Apply the suggested patches with `git apply patch`.' + "\n\n"
         message += patches.join(' ')
-      end 
+      end
 
       return if message.empty?
       fail VIOLATION_ERROR_MESSAGE
@@ -175,12 +175,12 @@ module Danger
         formatted_temp_file.close
         formatted_temp_file.unlink
 
-	# generate arrays with:
-	# 1. Name of offending files
-	# 2. Suggested patches, in Markdown format
+        # generate arrays with:
+        # 1. Name of offending files
+        # 2. Suggested patches, in Markdown format
         unless diff.empty?
-	  offending_files.push(file_name)
-	  patches.push(generate_patch(file_name, diff))
+          offending_files.push(file_name)
+          patches.push(generate_patch(file_name, diff))
         end
       end
 

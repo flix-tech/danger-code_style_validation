@@ -4,8 +4,8 @@
 
 This plugin uses 'clang-format' to look for code style violations in added
 lines on the current MR / PR, and offers inline patches.
-By default only Objective-C files, with extensions `.h`, `.m`, `.mm` and
-`.C`, are checked.
+By default only Objective-C files, with extensions `.h`, `.m`, and `.mm` are
+checked.
 
 ![Example](/doc/images/example.png)
 
