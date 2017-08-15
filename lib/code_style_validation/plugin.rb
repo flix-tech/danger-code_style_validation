@@ -56,7 +56,7 @@ module Danger
         message += 'Execute one of the following actions and commit again:' + "\n"
         message += '1. Run `clang-format` on the offending files' + "\n"
         message += '2. Apply the suggested patches with `git apply patch`.' + "\n\n"
-        message += patches.join(' ')
+        message += patches.join("\n")
       end
 
       return if message.empty?
