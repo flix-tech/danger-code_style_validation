@@ -2,9 +2,10 @@
 
 [![Build Status](https://travis-ci.org/flix-tech/danger-code_style_validation.svg?branch=master)](https://travis-ci.org/flix-tech/danger-code_style_validation)
 
-This plugin looks for code style violations for added lines and suggests patches.
-
-It uses 'clang-format' and only checks `.h`, `.m` and `.mm` files
+This plugin uses 'clang-format' to look for code style violations in added
+lines on the current MR / PR, and offers inline patches.
+By default only Objective-C files, with extensions `.h`, `.m`, and `.mm` are
+checked.
 
 ![Example](/doc/images/example.png)
 
@@ -22,6 +23,12 @@ Inside your `Dangerfile` :
 
 ```ruby
 code_style_validation.check
+```
+
+To check files with extensions other than the default ones:
+
+```ruby
+code_style_validation.check file_extensions: ['.hpp', '.cpp']
 ```
 
 To ignore specific paths, use `ignore_file_patterns` :

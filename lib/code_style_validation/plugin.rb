@@ -1,15 +1,18 @@
 module Danger
-  # This plugin looks for code style violations for
-  # added lines on the current MR / PR,
-  # and offers inline patches.
+  # This plugin uses 'clang-format' to look for code style violations in added
+  # lines on the current MR / PR, and offers inline patches.
+  # By default only Objective-C files, with extensions ".h", ".m", and ".mm"
+  # are checked.
   #
-  # It uses 'clang-format' and only checks ".h", ".m" and ".mm" files
-  #
-  # @example Ensure that added lines does not violate code style
+  # @example Ensure that changes do not violate code style in Objective-C files
   #
   #          code_style_validation.check
   #
-  # @example Ensure that changes don't violate code style, ignoring Pods directory
+  # @example Ensure that changes do not violate code style in files with given extensions
+  #
+  #          code_style_validation.check file_extensions: ['.hpp', '.cpp']
+  #
+  # @example Ensure that changes do not violate code style, ignoring Pods directory
   #
   #          code_style_validation.check ignore_file_patterns: [/^Pods\//]
   #
@@ -18,12 +21,15 @@ module Danger
   #
   class DangerCodeStyleValidation < Plugin
     VIOLATION_ERROR_MESSAGE = 'Code style violations detected.'.freeze
-    
+
     # Validates the code style of changed & added files using clang-format.
     # Generates Markdown message with respective patches.
     #
     # @return [void]
     def check(config = {})
+      defaults = {file_extensions: ['.h', '.m', '.mm'], ignore_file_patterns: []}
+      config = defaults.merge(config)
+      file_extensions = [*config[:file_extensions]]
       ignore_file_patterns = [*config[:ignore_file_patterns]]
 
       diff = ''
@@ -38,19 +44,31 @@ module Danger
         raise 'Unknown SCM Provider'
       end
 
-      changes = get_changes(diff, ignore_file_patterns)
-      message = resolve_changes(changes)
+      changes = get_changes(diff, file_extensions, ignore_file_patterns)
+      offending_files, patches = resolve_changes(changes)
+
+      message = ''
+      unless offending_files.empty?
+        message = 'Code style violations detected in the following files:' + "\n"
+        offending_files.each do |file_name|
+          message += '* `' + file_name + "`\n\n"
+        end
+        message += 'Execute one of the following actions and commit again:' + "\n"
+        message += '1. Run `clang-format` on the offending files' + "\n"
+        message += '2. Apply the suggested patches with `git apply patch`.' + "\n\n"
+        message += patches.join("\n")
+      end
 
       return if message.empty?
       fail VIOLATION_ERROR_MESSAGE
-      markdown '### Code Style Check (`.h`, `.m` and `.mm`)'
+      markdown '### Code Style Check'
       markdown '---'
       markdown message
     end
 
     private
 
-    def get_changes(diff_str, ignore_file_patterns)
+    def get_changes(diff_str, file_extensions, ignore_file_patterns)
       changes = {}
       line_cursor = 0
 
@@ -69,7 +87,7 @@ module Danger
 
         file_name = filename_line.split('+++ b/').last.chomp
 
-        unless file_name.end_with?('.m', '.h', '.mm')
+        unless file_name.end_with?(*file_extensions)
           next
         end
 
@@ -121,17 +139,17 @@ module Danger
       patches
     end
 
-    def generate_markdown(title, content)
-      markup_message = '#### ' + title + "\n"
-      markup_message += "```diff \n" + content + "\n``` \n"
-      markup_message
+    def generate_patch(title, content)
+      markup_patch = '#### ' + title + "\n"
+      markup_patch += "```diff \n" + content + "\n``` \n"
+      markup_patch
     end
 
     def resolve_changes(changes)
       # Parse all patches from diff string
 
-      markup_message = ''
-
+      offending_files = []
+      patches = []
       # patches.each do |patch|
       changes.each do |file_name, changed_lines|
         changed_lines_command_array = []
@@ -157,14 +175,16 @@ module Danger
         formatted_temp_file.close
         formatted_temp_file.unlink
 
-        # generate Markup message of patch suggestions
-        # to prevent code-style violations
+        # generate arrays with:
+        # 1. Name of offending files
+        # 2. Suggested patches, in Markdown format
         unless diff.empty?
-          markup_message += generate_markdown(file_name, diff)
+          offending_files.push(file_name)
+          patches.push(generate_patch(file_name, diff))
         end
       end
 
-      markup_message
+      return offending_files, patches
     end
   end
 end

@@ -19,7 +19,7 @@ branches:
 addons:
   apt:
     packages: [
-      clang-format-3.6
+      clang-format-3.8
     ]
 
 before_install:
