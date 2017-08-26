@@ -27,7 +27,8 @@ module Danger
         diff = File.read('spec/fixtures/violated_diff.diff')
 
         allow(@my_plugin.github).to receive(:pr_diff).and_return diff
-        @my_plugin.check file_extensions: ['.h', '.c']
+        @my_plugin.check validator: 'clang-format',
+                         file_extensions: ['.h', '.c']
 
         expect(@dangerfile.status_report[:errors]).to eq([])
       end

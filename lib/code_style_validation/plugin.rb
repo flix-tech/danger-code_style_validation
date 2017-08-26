@@ -27,8 +27,9 @@ module Danger
     #
     # @return [void]
     def check(config = {})
-      defaults = {file_extensions: ['.h', '.m', '.mm'], ignore_file_patterns: []}
+      defaults = {validator: ['clang-format'], file_extensions: ['.h', '.m', '.mm'], ignore_file_patterns: []}
       config = defaults.merge(config)
+      validator = *config[:validator]
       file_extensions = [*config[:file_extensions]]
       ignore_file_patterns = [*config[:ignore_file_patterns]]
 
@@ -45,7 +46,7 @@ module Danger
       end
 
       changes = get_changes(diff, file_extensions, ignore_file_patterns)
-      offending_files, patches = resolve_changes(changes)
+      offending_files, patches = resolve_changes(validator, changes)
 
       message = ''
       unless offending_files.empty?
@@ -145,7 +146,7 @@ module Danger
       markup_patch
     end
 
-    def resolve_changes(changes)
+    def resolve_changes(validator, changes)
       # Parse all patches from diff string
 
       offending_files = []
@@ -159,7 +160,7 @@ module Danger
         end
 
         changed_lines_command = changed_lines_command_array.join(' ')
-        format_command_array = ['clang-format', changed_lines_command, file_name]
+        format_command_array = [validator, changed_lines_command, file_name]
 
         # clang-format command for formatting JUST changed lines
         formatted = `#{format_command_array.join(' ')}`
