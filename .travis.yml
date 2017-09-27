@@ -23,6 +23,7 @@ addons:
     ]
 
 before_install:
+  - gem install bundler
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install clang-format@3.8; fi
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then export PATH=`brew --prefix clang-format@3.8`/bin:$PATH; fi
 
