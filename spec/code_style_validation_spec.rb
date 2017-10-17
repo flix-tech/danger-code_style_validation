@@ -33,6 +33,16 @@ module Danger
         expect(@dangerfile.status_report[:errors]).to eq([])
       end
 
+      it 'Accepts a validator other than clang-format' do
+        diff = File.read('spec/fixtures/violated_diff.diff')
+
+        allow(@my_plugin.github).to receive(:pr_diff).and_return diff
+        @my_plugin.check validator: 'yapf',
+                         file_extensions: ['.py']
+
+        expect(@dangerfile.status_report[:errors]).to eq([])
+      end
+
       it 'Does not report error when code not violated' do
         diff = File.read('spec/fixtures/innocent_diff.diff')
 

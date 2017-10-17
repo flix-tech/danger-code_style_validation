@@ -1,8 +1,10 @@
 module Danger
-  # This plugin uses 'clang-format' to look for code style violations in added
-  # lines on the current MR / PR, and offers inline patches.
-  # By default only Objective-C files, with extensions ".h", ".m", and ".mm"
-  # are checked.
+  # This plugin uses code style checker (validator in the following) to look
+  # for code style violations in added lines on the current MR / PR, and offers
+  # inline patches.
+  # The default validator is 'clang-format'. Only Objective-C files, with
+  # extensions ".h", ".m", and ".mm" are checked.
+  # It is possible to use other validators for other languages, e.g. 'yapf' for Python.
   #
   # @example Ensure that changes do not violate code style in Objective-C files
   #
@@ -11,6 +13,11 @@ module Danger
   # @example Ensure that changes do not violate code style in files with given extensions
   #
   #          code_style_validation.check file_extensions: ['.hpp', '.cpp']
+  #
+  # @example Ensure that changes do not violate code style in Python files with YAPF
+  #
+  #          code_style_validation.check validator: 'yapf',
+  #                                      file_extensions: ['.py']
   #
   # @example Ensure that changes do not violate code style, ignoring Pods directory
   #
@@ -22,12 +29,12 @@ module Danger
   class DangerCodeStyleValidation < Plugin
     VIOLATION_ERROR_MESSAGE = 'Code style violations detected.'.freeze
 
-    # Validates the code style of changed & added files using clang-format.
+    # Validates the code style of changed & added files using a validator program.
     # Generates Markdown message with respective patches.
     #
     # @return [void]
     def check(config = {})
-      defaults = {validator: ['clang-format'], file_extensions: ['.h', '.m', '.mm'], ignore_file_patterns: []}
+      defaults = {validator: 'clang-format', file_extensions: ['.h', '.m', '.mm'], ignore_file_patterns: []}
       config = defaults.merge(config)
       validator = *config[:validator]
       file_extensions = [*config[:file_extensions]]
@@ -55,7 +62,7 @@ module Danger
           message += '* `' + file_name + "`\n\n"
         end
         message += 'Execute one of the following actions and commit again:' + "\n"
-        message += '1. Run `clang-format` on the offending files' + "\n"
+        message += '1. Run `%s` on the offending files' % validator + "\n"
         message += '2. Apply the suggested patches with `git apply patch`.' + "\n\n"
         message += patches.join("\n")
       end
@@ -151,18 +158,24 @@ module Danger
 
       offending_files = []
       patches = []
-      # patches.each do |patch|
+      if validator.include? "clang-format"
+        # clang-format
+        changed_lines_option = "-lines=%s:%s"
+      else
+        # YAPF
+        changed_lines_option = "--lines=%s-%s"
+      end
       changes.each do |file_name, changed_lines|
         changed_lines_command_array = []
 
         changed_lines.each do |line_number|
-          changed_lines_command_array.push('-lines=' + line_number.to_s + ':' + line_number.to_s)
+          changed_lines_command_array.push(changed_lines_option % [line_number.to_s, line_number.to_s])
         end
 
         changed_lines_command = changed_lines_command_array.join(' ')
         format_command_array = [validator, changed_lines_command, file_name]
 
-        # clang-format command for formatting JUST changed lines
+        # validator command for formatting JUST changed lines
         formatted = `#{format_command_array.join(' ')}`
 
         formatted_temp_file = Tempfile.new('temp-formatted')
