@@ -52,6 +52,12 @@ module Danger
         raise 'Unknown SCM Provider'
       end
 
+      language = 'objective-c'
+      if file_extensions.include? '.cpp' then
+        language = 'c++'
+      elsif file_extensions.include? '.py' then
+        language = 'python'
+      end
       changes = get_changes(diff, file_extensions, ignore_file_patterns)
       offending_files, patches = resolve_changes(validator, changes)
 
@@ -64,7 +70,9 @@ module Danger
         message += 'Execute one of the following actions and commit again:' + "\n"
         message += '1. Run `%s` on the offending files' % validator + "\n"
         message += '2. Apply the suggested patches with `git apply patch`.' + "\n\n"
-        message += patches.join("\n")
+        offending_file.zip(patches).each do |file_name, patch|
+          message += get_markdown(file_name, patch, language)
+        end
       end
 
       return if message.empty?
@@ -75,6 +83,20 @@ module Danger
     end
 
     private
+
+    def get_markdown(file_name, patch, language):
+      md = %(
+      <details>
+        <summary><strong>Patch for</strong> <code>#{file_name}</code><strong>...</strong></summary>
+
+        ```#{language}
+        #{patch}
+        ```
+      </details>\n
+      )
+
+      md
+    end
 
     def get_changes(diff_str, file_extensions, ignore_file_patterns)
       changes = {}
