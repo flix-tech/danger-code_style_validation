@@ -1,0 +1,41 @@
+name: Test code_style_validation plugin to Danger
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu, macos]
+        ruby-version: [2.5, 2.6, 2.7, head]
+
+    runs-on: ${{ matrix.os }}-latest
+
+    steps:
+    - uses: actions/checkout@v2
+ 
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby-version }}
+        bundler-cache: true  # runs 'bundle install' and caches installed gems automatically
+
+    - name: Install clang-format
+      if: contains(matrix.os, 'ubuntu')
+      run: |
+        sudo apt-get install -y clang-format
+        
+    - name: Install clang-format
+      if: contains(matrix.os, 'macos')
+      run: |
+        brew install clang-format
+        
+    - name: Run tests
+      run: |
+        bundle exec rake spec
