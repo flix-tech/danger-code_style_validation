@@ -84,7 +84,7 @@ module Danger
 
     private
 
-    def get_markdown(file_name, patch, language):
+    def get_markdown(file_name, patch, language)
       md = %(
       <details>
         <summary><strong>Patch for</strong> <code>#{file_name}</code><strong>...</strong></summary>
